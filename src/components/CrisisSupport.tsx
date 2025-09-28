@@ -12,11 +12,11 @@ const CrisisSupport: React.FC = () => {
         <ExclamationTriangleIcon className="h-4 w-4 flex-shrink-0" />
         <span className="font-medium">Crisis Support Available 24/7:</span>
         <a 
-          href="tel:988" 
+          href="tel:9152987821" 
           className="flex items-center space-x-1 hover:underline font-semibold"
         >
           <PhoneIcon className="h-3 w-3" />
-          <span>Call 988</span>
+          <span>Call 9152987821</span>
         </a>
         <span>|</span>
         <button className="hover:underline font-semibold">
