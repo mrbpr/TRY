@@ -320,10 +320,10 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
                   Crisis Chat
                 </button>
                 <a
-                  href="tel:988"
+                  href="tel:9152987821"
                   className="block w-full py-2 px-4 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors duration-200 text-sm text-center"
                 >
-                  Call 988
+                  Call 9152987821
                 </a>
               </div>
             </div>

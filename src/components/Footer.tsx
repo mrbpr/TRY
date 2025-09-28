@@ -24,11 +24,15 @@ const Footer: React.FC = () => {
               <div className="space-y-1 text-sm">
                 <div className="flex items-center space-x-2">
                   <PhoneIcon className="h-4 w-4" />
-                  <span>Crisis Hotline: 988</span>
+                  <span>Suicide Prevention: 9152987821</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <PhoneIcon className="h-4 w-4" />
-                  <span>Emergency: 911</span>
+                  <span>Emergency: 112</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <PhoneIcon className="h-4 w-4" />
+                  <span>AASRA: 9820466726</span>
                 </div>
               </div>
             </div>
@@ -67,14 +71,14 @@ const Footer: React.FC = () => {
               </li>
               <li className="flex items-center space-x-3">
                 <PhoneIcon className="h-5 w-5 text-blue-300" />
-                <span className="text-blue-100">1-800-TRYIT-HELP</span>
+                <span className="text-blue-100">+91-80-46110007</span>
               </li>
               <li className="flex items-start space-x-3">
                 <MapPinIcon className="h-5 w-5 text-blue-300 mt-0.5" />
                 <span className="text-blue-100">
-                  Student Health Center<br />
-                  123 University Ave<br />
-                  Campus, ST 12345
+                  Mental Health Support Center<br />
+                  Bangalore, Karnataka<br />
+                  India - 560001
                 </span>
               </li>
             </ul>

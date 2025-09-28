@@ -355,16 +355,16 @@ const Resources: React.FC = () => {
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <a
-                href="tel:988"
+                href="tel:9152987821"
                 className="bg-white text-red-600 px-6 py-3 rounded-lg font-semibold hover:bg-red-50 transition-colors duration-200"
               >
-                Crisis Hotline: 988
+                Suicide Prevention: 9152987821
               </a>
               <a
-                href="tel:911"
+                href="tel:112"
                 className="bg-white text-red-600 px-6 py-3 rounded-lg font-semibold hover:bg-red-50 transition-colors duration-200"
               >
-                Emergency: 911
+                Emergency: 112
               </a>
               <button className="bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors duration-200">
                 Crisis Chat

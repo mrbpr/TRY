@@ -293,10 +293,10 @@ const Services: React.FC = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href="tel:988"
+              href="tel:9152987821"
               className="px-8 py-4 bg-white text-red-600 font-semibold rounded-lg hover:bg-red-50 transition-all duration-300 transform hover:scale-105"
             >
-              Call Crisis Hotline: 988
+              Call Suicide Prevention: 9152987821
             </a>
             <button className="px-8 py-4 border-2 border-white text-white font-semibold rounded-lg hover:bg-white hover:text-red-600 transition-all duration-300 transform hover:scale-105">
               Start Crisis Chat

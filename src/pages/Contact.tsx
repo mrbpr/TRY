@@ -133,16 +133,16 @@ const Contact: React.FC = () => {
           <p className="mb-4">If you're having thoughts of self-harm or suicide, please reach out immediately:</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <a
-              href="tel:988"
+              href="tel:9152987821"
               className="px-6 py-3 bg-white text-red-600 font-semibold rounded-lg hover:bg-red-50 transition-colors duration-200"
             >
-              Call 988 - Crisis Hotline
+              Call 9152987821 - Suicide Prevention
             </a>
             <a
-              href="tel:911"
+              href="tel:112"
               className="px-6 py-3 bg-white text-red-600 font-semibold rounded-lg hover:bg-red-50 transition-colors duration-200"
             >
-              Call 911 - Emergency
+              Call 112 - Emergency
             </a>
             <button className="px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors duration-200">
               Start Crisis Chat
