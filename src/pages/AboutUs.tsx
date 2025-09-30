@@ -1,4 +1,5 @@
 import React from 'react';
+import { useState } from 'react';
 import { 
   HeartIcon, 
   AcademicCapIcon, 
@@ -7,9 +8,11 @@ import {
   LightBulbIcon,
   SparklesIcon
 } from '@heroicons/react/24/outline';
+import AdminTeamEditor from '../components/AdminTeamEditor';
 
 const AboutUs: React.FC = () => {
-  const teamMembers = [
+  const [isAdminMode, setIsAdminMode] = useState(false);
+  const [teamMembers, setTeamMembers] = useState([
     {
       name: 'Dr. Sarah Johnson',
       role: 'Chief Clinical Officer',
@@ -38,7 +41,7 @@ const AboutUs: React.FC = () => {
       image: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop',
       description: 'Former student who experienced mental health challenges and now helps others navigate their journey.'
     }
-  ];
+  ]);
 
   const values = [
     {
@@ -180,35 +183,12 @@ const AboutUs: React.FC = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {teamMembers.map((member, index) => (
-              <div
-                key={index}
-                className="group text-center"
-              >
-                <div className="relative mb-4">
-                  <img
-                    src={member.image}
-                    alt={member.name}
-                    className="w-48 h-48 mx-auto rounded-2xl shadow-lg group-hover:shadow-xl transition-all duration-300 object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-2xl group-hover:from-black/30 transition-all duration-300"></div>
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-1">
-                  {member.name}
-                </h3>
-                <p className="text-blue-600 font-medium mb-1">
-                  {member.role}
-                </p>
-                <p className="text-sm text-gray-500 mb-3">
-                  {member.credentials}
-                </p>
-                <p className="text-gray-600 text-sm leading-relaxed">
-                  {member.description}
-                </p>
-              </div>
-            ))}
-          </div>
+          <AdminTeamEditor
+            teamMembers={teamMembers}
+            onUpdateTeam={setTeamMembers}
+            isAdminMode={isAdminMode}
+            onToggleAdmin={() => setIsAdminMode(!isAdminMode)}
+          />
         </div>
       </section>
 
