@@ -1,5 +1,5 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   HeartIcon, 
   AcademicCapIcon, 
@@ -9,39 +9,64 @@ import {
   SparklesIcon
 } from '@heroicons/react/24/outline';
 import AdminTeamEditor from '../components/AdminTeamEditor';
+import { teamMemberService, TeamMember } from '../lib/supabase';
 
 const AboutUs: React.FC = () => {
   const [isAdminMode, setIsAdminMode] = useState(false);
-  const [teamMembers, setTeamMembers] = useState([
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([
     {
       name: 'Dr. Sarah Johnson',
       role: 'Chief Clinical Officer',
       credentials: 'PhD in Clinical Psychology',
-      image: 'https://images.pexels.com/photos/5327585/pexels-photo-5327585.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop',
-      description: 'Specializes in student mental health with 15+ years of experience in higher education counseling.'
+      image_url: 'https://images.pexels.com/photos/5327585/pexels-photo-5327585.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop',
+      description: 'Specializes in student mental health with 15+ years of experience in higher education counseling.',
+      order_index: 1
     },
     {
       name: 'Michael Chen',
       role: 'Director of Technology',
       credentials: 'MS Computer Science, Mental Health Tech Advocate',
-      image: 'https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop',
-      description: 'Combines technical expertise with passion for creating accessible mental health solutions.'
+      image_url: 'https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop',
+      description: 'Combines technical expertise with passion for creating accessible mental health solutions.',
+      order_index: 2
     },
     {
       name: 'Dr. Maria Rodriguez',
       role: 'Research Director',
       credentials: 'PhD in Educational Psychology',
-      image: 'https://images.pexels.com/photos/5327921/pexels-photo-5327921.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop',
-      description: 'Leads our evidence-based approach to digital mental health interventions for students.'
+      image_url: 'https://images.pexels.com/photos/5327921/pexels-photo-5327921.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop',
+      description: 'Leads our evidence-based approach to digital mental health interventions for students.',
+      order_index: 3
     },
     {
       name: 'James Thompson',
       role: 'Community Outreach Manager',
       credentials: 'MA in Counseling, Peer Support Specialist',
-      image: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop',
-      description: 'Former student who experienced mental health challenges and now helps others navigate their journey.'
+      image_url: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop',
+      description: 'Former student who experienced mental health challenges and now helps others navigate their journey.',
+      order_index: 4
     }
   ]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load team members from Supabase on component mount
+  useEffect(() => {
+    const loadTeamMembers = async () => {
+      try {
+        const members = await teamMemberService.getAll();
+        if (members.length > 0) {
+          setTeamMembers(members);
+        }
+      } catch (error) {
+        console.error('Error loading team members:', error);
+        // Keep default team members if Supabase fails
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadTeamMembers();
+  }, []);
 
   const values = [
     {
@@ -81,6 +106,17 @@ const AboutUs: React.FC = () => {
       color: 'from-indigo-500 to-purple-500'
     }
   ];
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading team information...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white">
