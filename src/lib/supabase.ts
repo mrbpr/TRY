@@ -1,13 +1,16 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co'
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder_anon_key'
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables')
-}
+// Only create client if we have valid environment variables
+const hasValidConfig = supabaseUrl && supabaseAnonKey && 
+  supabaseUrl !== 'https://placeholder.supabase.co' && 
+  supabaseAnonKey !== 'placeholder_anon_key'
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = hasValidConfig 
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : null
 
 // Database types
 export interface TeamMember {
@@ -26,6 +29,10 @@ export interface TeamMember {
 export const teamMemberService = {
   // Get all team members
   async getAll(): Promise<TeamMember[]> {
+    if (!supabase) {
+      console.warn('Supabase not configured, using default team members')
+      return []
+    }
     const { data, error } = await supabase
       .from('team_members')
       .select('*')
@@ -37,6 +44,9 @@ export const teamMemberService = {
 
   // Create new team member
   async create(member: Omit<TeamMember, 'id' | 'created_at' | 'updated_at'>): Promise<TeamMember> {
+    if (!supabase) {
+      throw new Error('Supabase not configured')
+    }
     const { data, error } = await supabase
       .from('team_members')
       .insert([member])
@@ -49,6 +59,9 @@ export const teamMemberService = {
 
   // Update team member
   async update(id: string, updates: Partial<TeamMember>): Promise<TeamMember> {
+    if (!supabase) {
+      throw new Error('Supabase not configured')
+    }
     const { data, error } = await supabase
       .from('team_members')
       .update({ ...updates, updated_at: new Date().toISOString() })
@@ -62,6 +75,9 @@ export const teamMemberService = {
 
   // Delete team member
   async delete(id: string): Promise<void> {
+    if (!supabase) {
+      throw new Error('Supabase not configured')
+    }
     const { error } = await supabase
       .from('team_members')
       .delete()
@@ -72,6 +88,9 @@ export const teamMemberService = {
 
   // Upload image to Supabase Storage
   async uploadImage(file: File, memberId: string): Promise<string> {
+    if (!supabase) {
+      throw new Error('Supabase not configured')
+    }
     const fileExt = file.name.split('.').pop()
     const fileName = `${memberId}-${Date.now()}.${fileExt}`
     const filePath = `team-photos/${fileName}`
@@ -91,6 +110,9 @@ export const teamMemberService = {
 
   // Delete image from storage
   async deleteImage(imageUrl: string): Promise<void> {
+    if (!supabase) {
+      return // Silently skip if Supabase not configured
+    }
     if (!imageUrl.includes('supabase')) return // Only delete Supabase images
     
     const path = imageUrl.split('/').pop()
