@@ -1,10 +1,13 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { 
   ChatBubbleBottomCenterTextIcon, 
   XMarkIcon, 
   PaperAirplaneIcon,
   MinusIcon,
-  SparklesIcon
+  SparklesIcon,
+  ArrowsPointingOutIcon,
+  ArrowsPointingInIcon,
+  Bars3BottomRightIcon
 } from '@heroicons/react/24/outline';
 
 interface Message {
@@ -22,9 +25,22 @@ interface PsychologicalResponse {
   resources?: string[];
 }
 
+interface ChatSize {
+  width: number;
+  height: number;
+}
+
+type ChatState = 'minimized' | 'normal' | 'maximized' | 'closed';
+
 const ChatWidget: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isMinimized, setIsMinimized] = useState(false);
+  const [chatState, setChatState] = useState<ChatState>('closed');
+  const [chatSize, setChatSize] = useState<ChatSize>({ width: 450, height: 600 });
+  const [position, setPosition] = useState({ x: 24, y: 24 });
+  const [isResizing, setIsResizing] = useState(false);
+  const [resizeHandle, setResizeHandle] = useState<string>('');
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
@@ -43,10 +59,36 @@ const ChatWidget: React.FC = () => {
     sessionHistory?: string[];
   }>({});
   
+  const chatRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const resizeStartRef = useRef({ x: 0, y: 0, width: 0, height: 0 });
 
-  // Psychological knowledge base and response patterns
+  // Load user preferences from localStorage
+  useEffect(() => {
+    const savedPreferences = localStorage.getItem('chatWidget-preferences');
+    if (savedPreferences) {
+      const prefs = JSON.parse(savedPreferences);
+      setChatSize(prefs.size || { width: 450, height: 600 });
+      setPosition(prefs.position || { x: 24, y: 24 });
+    }
+  }, []);
+
+  // Save user preferences to localStorage
+  const savePreferences = useCallback(() => {
+    const preferences = {
+      size: chatSize,
+      position: position,
+      state: chatState
+    };
+    localStorage.setItem('chatWidget-preferences', JSON.stringify(preferences));
+  }, [chatSize, position, chatState]);
+
+  useEffect(() => {
+    savePreferences();
+  }, [savePreferences]);
+
+  // Psychological knowledge base and response patterns (keeping existing logic)
   const psychologicalDatabase = {
     crisisKeywords: [
       'suicide', 'kill myself', 'end it all', 'hurt myself', 'self harm', 'cutting',
@@ -147,10 +189,10 @@ const ChatWidget: React.FC = () => {
   }, [messages]);
 
   useEffect(() => {
-    if (isOpen && !isMinimized) {
-      inputRef.current?.focus();
+    if (chatState === 'normal' && inputRef.current) {
+      inputRef.current.focus();
     }
-  }, [isOpen, isMinimized]);
+  }, [chatState]);
 
   const analyzeUserInput = (input: string): PsychologicalResponse => {
     const lowerInput = input.toLowerCase();
@@ -291,7 +333,7 @@ const ChatWidget: React.FC = () => {
           setMessages(prev => [...prev, followUpMessage]);
         }, 2000);
       }
-    }, 1500 + Math.random() * 1000); // Variable response time for more natural feel
+    }, 1500 + Math.random() * 1000);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -300,6 +342,113 @@ const ChatWidget: React.FC = () => {
       handleSendMessage();
     }
   };
+
+  // Resize functionality
+  const handleResizeStart = (e: React.MouseEvent, handle: string) => {
+    e.preventDefault();
+    setIsResizing(true);
+    setResizeHandle(handle);
+    
+    const rect = chatRef.current?.getBoundingClientRect();
+    if (rect) {
+      resizeStartRef.current = {
+        x: e.clientX,
+        y: e.clientY,
+        width: rect.width,
+        height: rect.height
+      };
+    }
+  };
+
+  const handleResize = useCallback((e: MouseEvent) => {
+    if (!isResizing || !resizeHandle) return;
+
+    const deltaX = e.clientX - resizeStartRef.current.x;
+    const deltaY = e.clientY - resizeStartRef.current.y;
+    
+    let newWidth = resizeStartRef.current.width;
+    let newHeight = resizeStartRef.current.height;
+
+    // Handle different resize directions
+    if (resizeHandle.includes('right')) {
+      newWidth = Math.max(300, resizeStartRef.current.width + deltaX);
+    }
+    if (resizeHandle.includes('left')) {
+      newWidth = Math.max(300, resizeStartRef.current.width - deltaX);
+    }
+    if (resizeHandle.includes('bottom')) {
+      newHeight = Math.max(400, resizeStartRef.current.height + deltaY);
+    }
+    if (resizeHandle.includes('top')) {
+      newHeight = Math.max(400, resizeStartRef.current.height - deltaY);
+    }
+
+    // Constrain to viewport
+    const maxWidth = window.innerWidth - position.x - 20;
+    const maxHeight = window.innerHeight - position.y - 20;
+    
+    newWidth = Math.min(newWidth, maxWidth);
+    newHeight = Math.min(newHeight, maxHeight);
+
+    setChatSize({ width: newWidth, height: newHeight });
+  }, [isResizing, resizeHandle, position]);
+
+  const handleResizeEnd = useCallback(() => {
+    setIsResizing(false);
+    setResizeHandle('');
+  }, []);
+
+  // Drag functionality
+  const handleDragStart = (e: React.MouseEvent) => {
+    if (chatState === 'maximized') return;
+    
+    setIsDragging(true);
+    const rect = chatRef.current?.getBoundingClientRect();
+    if (rect) {
+      setDragOffset({
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+      });
+    }
+  };
+
+  const handleDrag = useCallback((e: MouseEvent) => {
+    if (!isDragging || chatState === 'maximized') return;
+
+    const newX = Math.max(0, Math.min(window.innerWidth - chatSize.width, e.clientX - dragOffset.x));
+    const newY = Math.max(0, Math.min(window.innerHeight - chatSize.height, e.clientY - dragOffset.y));
+    
+    setPosition({ x: newX, y: newY });
+  }, [isDragging, chatSize, dragOffset, chatState]);
+
+  const handleDragEnd = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  // Mouse event listeners
+  useEffect(() => {
+    if (isResizing) {
+      document.addEventListener('mousemove', handleResize);
+      document.addEventListener('mouseup', handleResizeEnd);
+    }
+    if (isDragging) {
+      document.addEventListener('mousemove', handleDrag);
+      document.addEventListener('mouseup', handleDragEnd);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleResize);
+      document.removeEventListener('mouseup', handleResizeEnd);
+      document.removeEventListener('mousemove', handleDrag);
+      document.removeEventListener('mouseup', handleDragEnd);
+    };
+  }, [isResizing, isDragging, handleResize, handleResizeEnd, handleDrag, handleDragEnd]);
+
+  // State management functions
+  const openChat = () => setChatState('normal');
+  const minimizeChat = () => setChatState('minimized');
+  const maximizeChat = () => setChatState('maximized');
+  const closeChat = () => setChatState('closed');
 
   const quickReplies = [
     "I'm feeling anxious about exams",
@@ -315,159 +464,311 @@ const ChatWidget: React.FC = () => {
     setTimeout(() => handleSendMessage(), 100);
   };
 
+  // Get chat dimensions and position based on state
+  const getChatStyle = () => {
+    switch (chatState) {
+      case 'maximized':
+        return {
+          position: 'fixed' as const,
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: '100vw',
+          height: '100vh',
+          zIndex: 1000
+        };
+      case 'minimized':
+        return {
+          position: 'fixed' as const,
+          bottom: 24,
+          right: 24,
+          width: 300,
+          height: 60,
+          zIndex: 50
+        };
+      case 'normal':
+        return {
+          position: 'fixed' as const,
+          bottom: position.y,
+          right: window.innerWidth - position.x - chatSize.width,
+          width: chatSize.width,
+          height: chatSize.height,
+          zIndex: 50
+        };
+      default:
+        return { display: 'none' };
+    }
+  };
+
+  if (chatState === 'closed') {
+    return (
+      <button
+        onClick={openChat}
+        className="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-r from-blue-500 to-green-500 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 z-50 flex items-center justify-center group"
+        aria-label="Open chat assistant"
+      >
+        <div className="relative">
+          <ChatBubbleBottomCenterTextIcon className="h-7 w-7" />
+          <SparklesIcon className="h-4 w-4 absolute -top-1 -right-1 text-yellow-300 animate-pulse" />
+        </div>
+      </button>
+    );
+  }
+
   return (
-    <>
-      {/* Chat Widget Button */}
-      {!isOpen && (
-        <button
-          onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-r from-blue-500 to-green-500 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 z-50 flex items-center justify-center group"
-        >
-          <div className="relative">
-            <ChatBubbleBottomCenterTextIcon className="h-7 w-7" />
-            <SparklesIcon className="h-4 w-4 absolute -top-1 -right-1 text-yellow-300 animate-pulse" />
+    <div
+      ref={chatRef}
+      style={getChatStyle()}
+      className={`bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col transition-all duration-300 ${
+        chatState === 'maximized' ? 'rounded-none' : ''
+      } ${isResizing || isDragging ? 'select-none' : ''}`}
+    >
+      {/* Header */}
+      <div
+        className={`bg-gradient-to-r from-blue-500 to-green-500 text-white p-4 flex items-center justify-between cursor-move ${
+          chatState === 'maximized' ? 'rounded-none' : 'rounded-t-2xl'
+        }`}
+        onMouseDown={handleDragStart}
+        role="banner"
+      >
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center relative">
+            <ChatBubbleBottomCenterTextIcon className="h-5 w-5" />
+            <SparklesIcon className="h-3 w-3 absolute -top-0.5 -right-0.5 text-yellow-300" />
           </div>
-        </button>
-      )}
-
-      {/* Chat Window */}
-      {isOpen && (
-        <div className={`fixed bottom-6 right-6 w-96 bg-white rounded-2xl shadow-2xl z-50 border border-gray-200 transition-all duration-300 ${
-          isMinimized ? 'h-16' : 'h-96'
-        }`}>
-          {/* Header */}
-          <div className="bg-gradient-to-r from-blue-500 to-green-500 text-white p-4 rounded-t-2xl flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center relative">
-                <ChatBubbleBottomCenterTextIcon className="h-5 w-5" />
-                <SparklesIcon className="h-3 w-3 absolute -top-0.5 -right-0.5 text-yellow-300" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-sm">ARIA - AI Mental Health Assistant</h3>
-                <p className="text-xs text-blue-100">Psychological support • Available 24/7</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={() => setIsMinimized(!isMinimized)}
-                className="p-1 hover:bg-white hover:bg-opacity-20 rounded transition-colors duration-200"
-              >
-                <MinusIcon className="h-4 w-4" />
-              </button>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="p-1 hover:bg-white hover:bg-opacity-20 rounded transition-colors duration-200"
-              >
-                <XMarkIcon className="h-4 w-4" />
-              </button>
-            </div>
+          <div>
+            <h3 className="font-semibold text-sm">ARIA - AI Mental Health Assistant</h3>
+            <p className="text-xs text-blue-100">
+              {chatState === 'maximized' ? 'Full Screen Mode' : 'Psychological support • Available 24/7'}
+            </p>
           </div>
+        </div>
+        
+        <div className="flex items-center space-x-2">
+          {chatState === 'normal' && (
+            <button
+              onClick={maximizeChat}
+              className="p-1 hover:bg-white hover:bg-opacity-20 rounded transition-colors duration-200"
+              aria-label="Maximize chat"
+            >
+              <ArrowsPointingOutIcon className="h-4 w-4" />
+            </button>
+          )}
+          
+          {chatState === 'maximized' && (
+            <button
+              onClick={() => setChatState('normal')}
+              className="p-1 hover:bg-white hover:bg-opacity-20 rounded transition-colors duration-200"
+              aria-label="Restore chat size"
+            >
+              <ArrowsPointingInIcon className="h-4 w-4" />
+            </button>
+          )}
+          
+          <button
+            onClick={minimizeChat}
+            className="p-1 hover:bg-white hover:bg-opacity-20 rounded transition-colors duration-200"
+            aria-label="Minimize chat"
+          >
+            <MinusIcon className="h-4 w-4" />
+          </button>
+          
+          <button
+            onClick={closeChat}
+            className="p-1 hover:bg-white hover:bg-opacity-20 rounded transition-colors duration-200"
+            aria-label="Close chat"
+          >
+            <XMarkIcon className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
 
-          {/* Chat Content */}
-          {!isMinimized && (
-            <>
-              {/* Messages */}
-              <div className="flex-1 p-4 h-64 overflow-y-auto bg-gray-50">
-                <div className="space-y-3">
-                  {messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                    >
-                      <div className={`max-w-xs px-3 py-2 rounded-lg text-sm ${
-                        message.sender === 'user'
-                          ? 'bg-blue-500 text-white'
-                          : message.type === 'crisis'
-                          ? 'bg-red-50 text-red-800 border border-red-200'
-                          : 'bg-white text-gray-800 shadow-sm border border-gray-200'
-                      }`}>
-                        <div className="whitespace-pre-wrap">{message.text}</div>
-                        <p className={`text-xs mt-1 ${
-                          message.sender === 'user' 
-                            ? 'text-blue-100' 
-                            : message.type === 'crisis'
-                            ? 'text-red-600'
-                            : 'text-gray-500'
-                        }`}>
-                          {message.timestamp.toLocaleTimeString([], { 
-                            hour: '2-digit', 
-                            minute: '2-digit' 
-                          })}
-                          {message.sender === 'ai' && (
-                            <span className="ml-1">• AI Assistant</span>
-                          )}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                  
-                  {/* Typing Indicator */}
-                  {isTyping && (
-                    <div className="flex justify-start">
-                      <div className="bg-white text-gray-800 shadow-sm border border-gray-200 px-3 py-2 rounded-lg">
-                        <div className="flex items-center space-x-2">
-                          <div className="flex space-x-1">
-                            <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
-                            <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                            <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                          </div>
-                          <span className="text-xs text-gray-500">ARIA is analyzing...</span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                  
-                  <div ref={messagesEndRef} />
+      {/* Chat Content - Hidden when minimized */}
+      {chatState !== 'minimized' && (
+        <>
+          {/* Messages */}
+          <div 
+            className="flex-1 p-4 overflow-y-auto bg-gray-50"
+            style={{ 
+              height: chatState === 'maximized' ? 'calc(100vh - 140px)' : `${chatSize.height - 140}px` 
+            }}
+            role="log"
+            aria-live="polite"
+            aria-label="Chat messages"
+          >
+            <div className="space-y-3">
+              {messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div className={`max-w-xs px-3 py-2 rounded-lg text-sm ${
+                    message.sender === 'user'
+                      ? 'bg-blue-500 text-white'
+                      : message.type === 'crisis'
+                      ? 'bg-red-50 text-red-800 border border-red-200'
+                      : 'bg-white text-gray-800 shadow-sm border border-gray-200'
+                  }`}>
+                    <div className="whitespace-pre-wrap">{message.text}</div>
+                    <p className={`text-xs mt-1 ${
+                      message.sender === 'user' 
+                        ? 'text-blue-100' 
+                        : message.type === 'crisis'
+                        ? 'text-red-600'
+                        : 'text-gray-500'
+                    }`}>
+                      {message.timestamp.toLocaleTimeString([], { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                      })}
+                      {message.sender === 'ai' && (
+                        <span className="ml-1">• AI Assistant</span>
+                      )}
+                    </p>
+                  </div>
                 </div>
-
-                {/* Quick Replies */}
-                {messages.length === 1 && (
-                  <div className="mt-4">
-                    <p className="text-xs text-gray-500 mb-2">Quick topics to explore:</p>
-                    <div className="flex flex-wrap gap-2">
-                      {quickReplies.map((reply, index) => (
-                        <button
-                          key={index}
-                          onClick={() => handleQuickReply(reply)}
-                          className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full hover:bg-blue-200 transition-colors duration-200"
-                        >
-                          {reply}
-                        </button>
-                      ))}
+              ))}
+              
+              {/* Typing Indicator */}
+              {isTyping && (
+                <div className="flex justify-start">
+                  <div className="bg-white text-gray-800 shadow-sm border border-gray-200 px-3 py-2 rounded-lg">
+                    <div className="flex items-center space-x-2">
+                      <div className="flex space-x-1">
+                        <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
+                        <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                        <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                      </div>
+                      <span className="text-xs text-gray-500">ARIA is analyzing...</span>
                     </div>
                   </div>
-                )}
-              </div>
-
-              {/* Input */}
-              <div className="p-4 border-t border-gray-200">
-                <div className="flex items-center space-x-2">
-                  <input
-                    ref={inputRef}
-                    type="text"
-                    value={inputText}
-                    onChange={(e) => setInputText(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    placeholder="Share what's on your mind..."
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                  />
-                  <button
-                    onClick={handleSendMessage}
-                    disabled={!inputText.trim()}
-                    className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-                  >
-                    <PaperAirplaneIcon className="h-4 w-4" />
-                  </button>
                 </div>
-                <p className="text-xs text-gray-500 mt-2">
-                  🚨 Emergency? Call 112 or Suicide Prevention: 9152987821
-                </p>
+              )}
+              
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Quick Replies */}
+            {messages.length === 1 && (
+              <div className="mt-4">
+                <p className="text-xs text-gray-500 mb-2">Quick topics to explore:</p>
+                <div className="flex flex-wrap gap-2">
+                  {quickReplies.map((reply, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleQuickReply(reply)}
+                      className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full hover:bg-blue-200 transition-colors duration-200"
+                    >
+                      {reply}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </>
+            )}
+          </div>
+
+          {/* Input */}
+          <div className="p-4 border-t border-gray-200">
+            <div className="flex items-center space-x-2">
+              <input
+                ref={inputRef}
+                type="text"
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Share what's on your mind..."
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                aria-label="Type your message"
+              />
+              <button
+                onClick={handleSendMessage}
+                disabled={!inputText.trim()}
+                className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                aria-label="Send message"
+              >
+                <PaperAirplaneIcon className="h-4 w-4" />
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 mt-2">
+              🚨 Emergency? Call 112 or Suicide Prevention: 9152987821
+            </p>
+          </div>
+        </>
+      )}
+
+      {/* Minimized State Content */}
+      {chatState === 'minimized' && (
+        <div 
+          className="flex items-center justify-between p-3 cursor-pointer"
+          onClick={() => setChatState('normal')}
+          role="button"
+          tabIndex={0}
+          aria-label="Expand chat"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              setChatState('normal');
+            }
+          }}
+        >
+          <div className="flex items-center space-x-2">
+            <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-green-500 rounded-full flex items-center justify-center">
+              <ChatBubbleBottomCenterTextIcon className="h-3 w-3 text-white" />
+            </div>
+            <span className="text-sm font-medium text-gray-700">ARIA Assistant</span>
+          </div>
+          {messages.length > 1 && (
+            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
           )}
         </div>
       )}
-    </>
+
+      {/* Resize Handles - Only show in normal state */}
+      {chatState === 'normal' && (
+        <>
+          {/* Corner handles */}
+          <div
+            className="absolute top-0 right-0 w-3 h-3 cursor-nw-resize opacity-0 hover:opacity-100 transition-opacity"
+            onMouseDown={(e) => handleResizeStart(e, 'top-right')}
+            style={{ background: 'linear-gradient(-45deg, transparent 40%, #3b82f6 40%, #3b82f6 60%, transparent 60%)' }}
+          />
+          <div
+            className="absolute bottom-0 right-0 w-3 h-3 cursor-nw-resize opacity-0 hover:opacity-100 transition-opacity"
+            onMouseDown={(e) => handleResizeStart(e, 'bottom-right')}
+          >
+            <Bars3BottomRightIcon className="h-3 w-3 text-gray-400" />
+          </div>
+          <div
+            className="absolute bottom-0 left-0 w-3 h-3 cursor-ne-resize opacity-0 hover:opacity-100 transition-opacity"
+            onMouseDown={(e) => handleResizeStart(e, 'bottom-left')}
+            style={{ background: 'linear-gradient(45deg, transparent 40%, #3b82f6 40%, #3b82f6 60%, transparent 60%)' }}
+          />
+          <div
+            className="absolute top-0 left-0 w-3 h-3 cursor-ne-resize opacity-0 hover:opacity-100 transition-opacity"
+            onMouseDown={(e) => handleResizeStart(e, 'top-left')}
+            style={{ background: 'linear-gradient(135deg, transparent 40%, #3b82f6 40%, #3b82f6 60%, transparent 60%)' }}
+          />
+
+          {/* Edge handles */}
+          <div
+            className="absolute top-0 left-3 right-3 h-1 cursor-n-resize opacity-0 hover:opacity-100 transition-opacity hover:bg-blue-200"
+            onMouseDown={(e) => handleResizeStart(e, 'top')}
+          />
+          <div
+            className="absolute bottom-0 left-3 right-3 h-1 cursor-n-resize opacity-0 hover:opacity-100 transition-opacity hover:bg-blue-200"
+            onMouseDown={(e) => handleResizeStart(e, 'bottom')}
+          />
+          <div
+            className="absolute left-0 top-3 bottom-3 w-1 cursor-e-resize opacity-0 hover:opacity-100 transition-opacity hover:bg-blue-200"
+            onMouseDown={(e) => handleResizeStart(e, 'left')}
+          />
+          <div
+            className="absolute right-0 top-3 bottom-3 w-1 cursor-e-resize opacity-0 hover:opacity-100 transition-opacity hover:bg-blue-200"
+            onMouseDown={(e) => handleResizeStart(e, 'right')}
+          />
+        </>
+      )}
+    </div>
   );
 };
 
