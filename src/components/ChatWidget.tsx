@@ -7,7 +7,8 @@ import {
   SparklesIcon,
   ArrowsPointingOutIcon,
   ArrowsPointingInIcon,
-  Bars3BottomRightIcon
+  Bars3BottomRightIcon,
+  MagnifyingGlassIcon
 } from '@heroicons/react/24/outline';
 
 interface Message {
@@ -32,14 +33,38 @@ interface ChatSize {
 
 type ChatState = 'minimized' | 'normal' | 'maximized' | 'closed';
 
+interface SnapZone {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  type: 'corner' | 'edge' | 'center';
+  magneticStrength: number;
+}
+
+interface FluidPosition {
+  x: number;
+  y: number;
+  isSnapped: boolean;
+  snapZone?: SnapZone;
+}
+
 const ChatWidget: React.FC = () => {
   const [chatState, setChatState] = useState<ChatState>('closed');
   const [chatSize, setChatSize] = useState<ChatSize>({ width: 450, height: 600 });
-  const [position, setPosition] = useState({ x: 24, y: 24 });
+  const [position, setPosition] = useState<FluidPosition>({ 
+    x: 24, 
+    y: 24, 
+    isSnapped: false 
+  });
   const [isResizing, setIsResizing] = useState(false);
   const [resizeHandle, setResizeHandle] = useState<string>('');
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [showSnapZones, setShowSnapZones] = useState(false);
+  const [snapZones, setSnapZones] = useState<SnapZone[]>([]);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [dragPreview, setDragPreview] = useState<{ x: number; y: number } | null>(null);
   
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -63,6 +88,136 @@ const ChatWidget: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const resizeStartRef = useRef({ x: 0, y: 0, width: 0, height: 0 });
+  const animationFrameRef = useRef<number>();
+  const lastPositionRef = useRef({ x: 0, y: 0 });
+
+  // Snap zone configuration
+  const SNAP_THRESHOLD = 30;
+  const MAGNETIC_STRENGTH = 15;
+  const ANIMATION_DURATION = 300;
+
+  // Generate snap zones based on viewport
+  const generateSnapZones = useCallback((): SnapZone[] => {
+    const viewport = {
+      width: window.innerWidth,
+      height: window.innerHeight
+    };
+
+    const zones: SnapZone[] = [
+      // Corner zones
+      { x: 20, y: 20, width: 100, height: 100, type: 'corner', magneticStrength: MAGNETIC_STRENGTH },
+      { x: viewport.width - 120, y: 20, width: 100, height: 100, type: 'corner', magneticStrength: MAGNETIC_STRENGTH },
+      { x: 20, y: viewport.height - 120, width: 100, height: 100, type: 'corner', magneticStrength: MAGNETIC_STRENGTH },
+      { x: viewport.width - 120, y: viewport.height - 120, width: 100, height: 100, type: 'corner', magneticStrength: MAGNETIC_STRENGTH },
+      
+      // Edge zones (center of each edge)
+      { x: viewport.width / 2 - 50, y: 20, width: 100, height: 50, type: 'edge', magneticStrength: MAGNETIC_STRENGTH },
+      { x: viewport.width / 2 - 50, y: viewport.height - 70, width: 100, height: 50, type: 'edge', magneticStrength: MAGNETIC_STRENGTH },
+      { x: 20, y: viewport.height / 2 - 50, width: 50, height: 100, type: 'edge', magneticStrength: MAGNETIC_STRENGTH },
+      { x: viewport.width - 70, y: viewport.height / 2 - 50, width: 50, height: 100, type: 'edge', magneticStrength: MAGNETIC_STRENGTH },
+      
+      // Center zone
+      { x: viewport.width / 2 - 75, y: viewport.height / 2 - 75, width: 150, height: 150, type: 'center', magneticStrength: MAGNETIC_STRENGTH * 0.7 }
+    ];
+
+    return zones;
+  }, []);
+
+  // Calculate distance between two points
+  const calculateDistance = (x1: number, y1: number, x2: number, y2: number): number => {
+    return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+  };
+
+  // Find nearest snap zone
+  const findNearestSnapZone = useCallback((x: number, y: number): SnapZone | null => {
+    let nearestZone: SnapZone | null = null;
+    let minDistance = SNAP_THRESHOLD;
+
+    for (const zone of snapZones) {
+      const zoneCenterX = zone.x + zone.width / 2;
+      const zoneCenterY = zone.y + zone.height / 2;
+      const distance = calculateDistance(x, y, zoneCenterX, zoneCenterY);
+
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearestZone = zone;
+      }
+    }
+
+    return nearestZone;
+  }, [snapZones]);
+
+  // Animate position change
+  const animateToPosition = useCallback((targetX: number, targetY: number, duration: number = ANIMATION_DURATION) => {
+    const startX = position.x;
+    const startY = position.y;
+    const startTime = performance.now();
+    
+    setIsAnimating(true);
+
+    const animate = (currentTime: number) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      // Easing function (ease-out-cubic)
+      const easeOut = 1 - Math.pow(1 - progress, 3);
+      
+      const currentX = startX + (targetX - startX) * easeOut;
+      const currentY = startY + (targetY - startY) * easeOut;
+      
+      setPosition(prev => ({
+        ...prev,
+        x: currentX,
+        y: currentY
+      }));
+
+      if (progress < 1) {
+        animationFrameRef.current = requestAnimationFrame(animate);
+      } else {
+        setIsAnimating(false);
+      }
+    };
+
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+    }
+    animationFrameRef.current = requestAnimationFrame(animate);
+  }, [position.x, position.y]);
+
+  // Intelligent collision detection
+  const checkCollisions = useCallback((x: number, y: number): { x: number; y: number } => {
+    const viewport = {
+      width: window.innerWidth,
+      height: window.innerHeight
+    };
+
+    // Ensure widget stays within viewport bounds
+    const constrainedX = Math.max(0, Math.min(viewport.width - chatSize.width, x));
+    const constrainedY = Math.max(0, Math.min(viewport.height - chatSize.height, y));
+
+    // Add buffer zones near edges for better UX
+    const buffer = 10;
+    const finalX = constrainedX < buffer ? buffer : 
+                   constrainedX > viewport.width - chatSize.width - buffer ? 
+                   viewport.width - chatSize.width - buffer : constrainedX;
+    
+    const finalY = constrainedY < buffer ? buffer : 
+                   constrainedY > viewport.height - chatSize.height - buffer ? 
+                   viewport.height - chatSize.height - buffer : constrainedY;
+
+    return { x: finalX, y: finalY };
+  }, [chatSize]);
+
+  // Handle viewport resize
+  const handleViewportResize = useCallback(() => {
+    setSnapZones(generateSnapZones());
+    
+    // Reposition widget if it's outside new viewport
+    const newPosition = checkCollisions(position.x, position.y);
+    if (newPosition.x !== position.x || newPosition.y !== position.y) {
+      animateToPosition(newPosition.x, newPosition.y, 200);
+    }
+  }, [generateSnapZones, checkCollisions, position.x, position.y, animateToPosition]);
 
   // Load user preferences from localStorage
   useEffect(() => {
@@ -70,9 +225,22 @@ const ChatWidget: React.FC = () => {
     if (savedPreferences) {
       const prefs = JSON.parse(savedPreferences);
       setChatSize(prefs.size || { width: 450, height: 600 });
-      setPosition(prefs.position || { x: 24, y: 24 });
+      setPosition(prefs.position || { x: 24, y: 24, isSnapped: false });
     }
-  }, []);
+    
+    // Initialize snap zones
+    setSnapZones(generateSnapZones());
+    
+    // Add viewport resize listener
+    window.addEventListener('resize', handleViewportResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleViewportResize);
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [generateSnapZones, handleViewportResize]);
 
   // Save user preferences to localStorage
   const savePreferences = useCallback(() => {
@@ -402,6 +570,7 @@ const ChatWidget: React.FC = () => {
   const handleDragStart = (e: React.MouseEvent) => {
     if (chatState === 'maximized') return;
     
+    setShowSnapZones(true);
     setIsDragging(true);
     const rect = chatRef.current?.getBoundingClientRect();
     if (rect) {
@@ -409,21 +578,63 @@ const ChatWidget: React.FC = () => {
         x: e.clientX - rect.left,
         y: e.clientY - rect.top
       });
+      lastPositionRef.current = { x: position.x, y: position.y };
     }
   };
 
   const handleDrag = useCallback((e: MouseEvent) => {
     if (!isDragging || chatState === 'maximized') return;
 
-    const newX = Math.max(0, Math.min(window.innerWidth - chatSize.width, e.clientX - dragOffset.x));
-    const newY = Math.max(0, Math.min(window.innerHeight - chatSize.height, e.clientY - dragOffset.y));
+    const rawX = e.clientX - dragOffset.x;
+    const rawY = e.clientY - dragOffset.y;
     
-    setPosition({ x: newX, y: newY });
-  }, [isDragging, chatSize, dragOffset, chatState]);
+    // Update drag preview
+    setDragPreview({ x: rawX, y: rawY });
+    
+    // Check for snap zones
+    const nearestZone = findNearestSnapZone(rawX + chatSize.width / 2, rawY + chatSize.height / 2);
+    
+    let finalX = rawX;
+    let finalY = rawY;
+    let isSnapped = false;
+    
+    if (nearestZone) {
+      // Apply magnetic effect
+      const zoneCenterX = nearestZone.x + nearestZone.width / 2;
+      const zoneCenterY = nearestZone.y + nearestZone.height / 2;
+      
+      finalX = zoneCenterX - chatSize.width / 2;
+      finalY = zoneCenterY - chatSize.height / 2;
+      isSnapped = true;
+    }
+    
+    // Apply collision detection
+    const constrainedPosition = checkCollisions(finalX, finalY);
+    
+    setPosition(prev => ({
+      x: constrainedPosition.x,
+      y: constrainedPosition.y,
+      isSnapped,
+      snapZone: nearestZone || undefined
+    }));
+  }, [isDragging, chatSize, dragOffset, chatState, isAnimating, findNearestSnapZone, checkCollisions]);
 
   const handleDragEnd = useCallback(() => {
+    setShowSnapZones(false);
+    setDragPreview(null);
     setIsDragging(false);
-  }, []);
+    
+    // If snapped, animate to perfect position
+    if (position.isSnapped && position.snapZone) {
+      const perfectX = position.snapZone.x + position.snapZone.width / 2 - chatSize.width / 2;
+      const perfectY = position.snapZone.y + position.snapZone.height / 2 - chatSize.height / 2;
+      const constrainedPosition = checkCollisions(perfectX, perfectY);
+      
+      if (Math.abs(constrainedPosition.x - position.x) > 2 || Math.abs(constrainedPosition.y - position.y) > 2) {
+        animateToPosition(constrainedPosition.x, constrainedPosition.y, 150);
+      }
+    }
+  }, [position.isSnapped, position.snapZone, chatSize, checkCollisions, animateToPosition]);
 
   // Mouse event listeners
   useEffect(() => {
@@ -447,7 +658,10 @@ const ChatWidget: React.FC = () => {
   // State management functions
   const openChat = () => setChatState('normal');
   const minimizeChat = () => setChatState('minimized');
-  const maximizeChat = () => setChatState('maximized');
+  const maximizeChat = () => {
+    setChatState('maximized');
+    setPosition(prev => ({ ...prev, isSnapped: false }));
+  };
   const closeChat = () => setChatState('closed');
 
   const quickReplies = [
@@ -476,7 +690,8 @@ const ChatWidget: React.FC = () => {
           bottom: 0,
           width: '100vw',
           height: '100vh',
-          zIndex: 1000
+          zIndex: 1000,
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
         };
       case 'minimized':
         return {
@@ -485,7 +700,8 @@ const ChatWidget: React.FC = () => {
           right: 24,
           width: 300,
           height: 60,
-          zIndex: 50
+          zIndex: 50,
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
         };
       case 'normal':
         return {
@@ -494,7 +710,12 @@ const ChatWidget: React.FC = () => {
           right: window.innerWidth - position.x - chatSize.width,
           width: chatSize.width,
           height: chatSize.height,
-          zIndex: 50
+          zIndex: 50,
+          transition: isAnimating ? 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
+          transform: position.isSnapped ? 'scale(1.02)' : 'scale(1)',
+          boxShadow: position.isSnapped 
+            ? '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(59, 130, 246, 0.3)'
+            : '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
         };
       default:
         return { display: 'none' };
@@ -517,18 +738,70 @@ const ChatWidget: React.FC = () => {
   }
 
   return (
+    <>
+      {/* Snap Zones Overlay */}
+      {showSnapZones && chatState === 'normal' && (
+        <div className="fixed inset-0 pointer-events-none z-40">
+          {snapZones.map((zone, index) => (
+            <div
+              key={index}
+              className={`absolute border-2 border-dashed rounded-lg transition-all duration-200 ${
+                zone.type === 'corner' 
+                  ? 'border-blue-400 bg-blue-50 bg-opacity-20' 
+                  : zone.type === 'edge'
+                  ? 'border-green-400 bg-green-50 bg-opacity-20'
+                  : 'border-purple-400 bg-purple-50 bg-opacity-20'
+              }`}
+              style={{
+                left: zone.x,
+                top: zone.y,
+                width: zone.width,
+                height: zone.height,
+                opacity: 0.6
+              }}
+            >
+              <div className={`absolute inset-0 flex items-center justify-center text-xs font-medium ${
+                zone.type === 'corner' ? 'text-blue-600' : 
+                zone.type === 'edge' ? 'text-green-600' : 'text-purple-600'
+              }`}>
+                {zone.type}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Drag Preview */}
+      {dragPreview && isDragging && (
+        <div
+          className="fixed pointer-events-none z-45 opacity-50"
+          style={{
+            left: dragPreview.x,
+            top: dragPreview.y,
+            width: chatSize.width,
+            height: chatSize.height
+          }}
+        >
+          <div className="w-full h-full bg-blue-200 border-2 border-blue-400 border-dashed rounded-2xl"></div>
+        </div>
+      )}
+
     <div
       ref={chatRef}
       style={getChatStyle()}
-      className={`bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col transition-all duration-300 ${
+      className={`bg-white rounded-2xl border border-gray-200 flex flex-col ${
         chatState === 'maximized' ? 'rounded-none' : ''
-      } ${isResizing || isDragging ? 'select-none' : ''}`}
+      } ${isResizing || isDragging ? 'select-none' : ''} ${
+        position.isSnapped ? 'ring-2 ring-blue-400 ring-opacity-50' : ''
+      }`}
     >
       {/* Header */}
       <div
-        className={`bg-gradient-to-r from-blue-500 to-green-500 text-white p-4 flex items-center justify-between cursor-move ${
+        className={`bg-gradient-to-r from-blue-500 to-green-500 text-white p-4 flex items-center justify-between ${
+          chatState === 'normal' && !isAnimating ? 'cursor-move' : 'cursor-default'
+        } ${
           chatState === 'maximized' ? 'rounded-none' : 'rounded-t-2xl'
-        }`}
+        } ${isDragging ? 'cursor-grabbing' : ''}`}
         onMouseDown={handleDragStart}
         role="banner"
       >
@@ -540,7 +813,12 @@ const ChatWidget: React.FC = () => {
           <div>
             <h3 className="font-semibold text-sm">ARIA - AI Mental Health Assistant</h3>
             <p className="text-xs text-blue-100">
-              {chatState === 'maximized' ? 'Full Screen Mode' : 'Psychological support • Available 24/7'}
+              {chatState === 'maximized' 
+                ? 'Full Screen Mode' 
+                : position.isSnapped 
+                ? `Snapped to ${position.snapZone?.type} • Available 24/7`
+                : 'Psychological support • Available 24/7'
+              }
             </p>
           </div>
         </div>
@@ -769,6 +1047,7 @@ const ChatWidget: React.FC = () => {
         </>
       )}
     </div>
+    </>
   );
 };
 
