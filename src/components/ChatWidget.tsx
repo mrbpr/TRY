@@ -223,9 +223,13 @@ const ChatWidget: React.FC = () => {
   useEffect(() => {
     const savedPreferences = localStorage.getItem('chatWidget-preferences');
     if (savedPreferences) {
-      const prefs = JSON.parse(savedPreferences);
-      setChatSize(prefs.size || { width: 450, height: 600 });
-      setPosition(prefs.position || { x: 24, y: 24, isSnapped: false });
+      try {
+        const prefs = JSON.parse(savedPreferences);
+        if (prefs.size) setChatSize(prefs.size);
+        if (prefs.position) setPosition(prefs.position);
+      } catch (error) {
+        console.warn('Failed to parse chat preferences:', error);
+      }
     }
     
     // Initialize snap zones
@@ -244,12 +248,16 @@ const ChatWidget: React.FC = () => {
 
   // Save user preferences to localStorage
   const savePreferences = useCallback(() => {
-    const preferences = {
-      size: chatSize,
-      position: position,
-      state: chatState
-    };
-    localStorage.setItem('chatWidget-preferences', JSON.stringify(preferences));
+    try {
+      const preferences = {
+        size: chatSize,
+        position: position,
+        state: chatState
+      };
+      localStorage.setItem('chatWidget-preferences', JSON.stringify(preferences));
+    } catch (error) {
+      console.warn('Failed to save chat preferences:', error);
+    }
   }, [chatSize, position, chatState]);
 
   useEffect(() => {
@@ -588,9 +596,6 @@ const ChatWidget: React.FC = () => {
     const rawX = e.clientX - dragOffset.x;
     const rawY = e.clientY - dragOffset.y;
     
-    // Update drag preview
-    setDragPreview({ x: rawX, y: rawY });
-    
     // Check for snap zones
     const nearestZone = findNearestSnapZone(rawX + chatSize.width / 2, rawY + chatSize.height / 2);
     
@@ -610,6 +615,9 @@ const ChatWidget: React.FC = () => {
     
     // Apply collision detection
     const constrainedPosition = checkCollisions(finalX, finalY);
+    
+    // Update drag preview
+    setDragPreview({ x: constrainedPosition.x, y: constrainedPosition.y });
     
     setPosition(prev => ({
       x: constrainedPosition.x,
@@ -680,14 +688,15 @@ const ChatWidget: React.FC = () => {
 
   // Get chat dimensions and position based on state
   const getChatStyle = () => {
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    
     switch (chatState) {
       case 'maximized':
         return {
           position: 'fixed' as const,
           top: 0,
           left: 0,
-          right: 0,
-          bottom: 0,
           width: '100vw',
           height: '100vh',
           zIndex: 1000,
@@ -696,8 +705,8 @@ const ChatWidget: React.FC = () => {
       case 'minimized':
         return {
           position: 'fixed' as const,
-          bottom: 24,
-          right: 24,
+          bottom: viewportHeight - position.y - 60,
+          left: position.x,
           width: 300,
           height: 60,
           zIndex: 50,
@@ -706,8 +715,8 @@ const ChatWidget: React.FC = () => {
       case 'normal':
         return {
           position: 'fixed' as const,
-          bottom: position.y,
-          right: window.innerWidth - position.x - chatSize.width,
+          top: position.y,
+          left: position.x,
           width: chatSize.width,
           height: chatSize.height,
           zIndex: 50,
@@ -741,7 +750,7 @@ const ChatWidget: React.FC = () => {
     <>
       {/* Snap Zones Overlay */}
       {showSnapZones && chatState === 'normal' && (
-        <div className="fixed inset-0 pointer-events-none z-40">
+        <div className="fixed inset-0 pointer-events-none z-45">
           {snapZones.map((zone, index) => (
             <div
               key={index}
@@ -774,7 +783,7 @@ const ChatWidget: React.FC = () => {
       {/* Drag Preview */}
       {dragPreview && isDragging && (
         <div
-          className="fixed pointer-events-none z-45 opacity-50"
+          className="fixed pointer-events-none z-46 opacity-50"
           style={{
             left: dragPreview.x,
             top: dragPreview.y,
@@ -1004,44 +1013,43 @@ const ChatWidget: React.FC = () => {
       {/* Resize Handles - Only show in normal state */}
       {chatState === 'normal' && (
         <>
-          {/* Corner handles */}
+          {/* Bottom-right corner handle (primary) */}
           <div
-            className="absolute top-0 right-0 w-3 h-3 cursor-nw-resize opacity-0 hover:opacity-100 transition-opacity"
-            onMouseDown={(e) => handleResizeStart(e, 'top-right')}
-            style={{ background: 'linear-gradient(-45deg, transparent 40%, #3b82f6 40%, #3b82f6 60%, transparent 60%)' }}
-          />
-          <div
-            className="absolute bottom-0 right-0 w-3 h-3 cursor-nw-resize opacity-0 hover:opacity-100 transition-opacity"
+            className="absolute bottom-0 right-0 w-4 h-4 cursor-nw-resize opacity-60 hover:opacity-100 transition-opacity bg-blue-500 rounded-tl-lg"
             onMouseDown={(e) => handleResizeStart(e, 'bottom-right')}
           >
-            <Bars3BottomRightIcon className="h-3 w-3 text-gray-400" />
+            <Bars3BottomRightIcon className="h-3 w-3 text-white m-0.5" />
           </div>
+          
+          {/* Other corner handles */}
           <div
-            className="absolute bottom-0 left-0 w-3 h-3 cursor-ne-resize opacity-0 hover:opacity-100 transition-opacity"
+            className="absolute bottom-0 left-0 w-3 h-3 cursor-ne-resize opacity-0 hover:opacity-60 transition-opacity bg-blue-400 rounded-tr-sm"
             onMouseDown={(e) => handleResizeStart(e, 'bottom-left')}
-            style={{ background: 'linear-gradient(45deg, transparent 40%, #3b82f6 40%, #3b82f6 60%, transparent 60%)' }}
           />
           <div
-            className="absolute top-0 left-0 w-3 h-3 cursor-ne-resize opacity-0 hover:opacity-100 transition-opacity"
+            className="absolute top-0 left-0 w-3 h-3 cursor-se-resize opacity-0 hover:opacity-60 transition-opacity bg-blue-400 rounded-br-sm"
             onMouseDown={(e) => handleResizeStart(e, 'top-left')}
-            style={{ background: 'linear-gradient(135deg, transparent 40%, #3b82f6 40%, #3b82f6 60%, transparent 60%)' }}
+          />
+          <div
+            className="absolute top-0 right-0 w-3 h-3 cursor-sw-resize opacity-0 hover:opacity-60 transition-opacity bg-blue-400 rounded-bl-sm"
+            onMouseDown={(e) => handleResizeStart(e, 'top-right')}
           />
 
           {/* Edge handles */}
           <div
-            className="absolute top-0 left-3 right-3 h-1 cursor-n-resize opacity-0 hover:opacity-100 transition-opacity hover:bg-blue-200"
+            className="absolute top-0 left-3 right-3 h-2 cursor-n-resize opacity-0 hover:opacity-40 transition-opacity hover:bg-blue-300 rounded-b"
             onMouseDown={(e) => handleResizeStart(e, 'top')}
           />
           <div
-            className="absolute bottom-0 left-3 right-3 h-1 cursor-n-resize opacity-0 hover:opacity-100 transition-opacity hover:bg-blue-200"
+            className="absolute bottom-0 left-3 right-3 h-2 cursor-s-resize opacity-0 hover:opacity-40 transition-opacity hover:bg-blue-300 rounded-t"
             onMouseDown={(e) => handleResizeStart(e, 'bottom')}
           />
           <div
-            className="absolute left-0 top-3 bottom-3 w-1 cursor-e-resize opacity-0 hover:opacity-100 transition-opacity hover:bg-blue-200"
+            className="absolute left-0 top-3 bottom-3 w-2 cursor-w-resize opacity-0 hover:opacity-40 transition-opacity hover:bg-blue-300 rounded-r"
             onMouseDown={(e) => handleResizeStart(e, 'left')}
           />
           <div
-            className="absolute right-0 top-3 bottom-3 w-1 cursor-e-resize opacity-0 hover:opacity-100 transition-opacity hover:bg-blue-200"
+            className="absolute right-0 top-3 bottom-3 w-2 cursor-e-resize opacity-0 hover:opacity-40 transition-opacity hover:bg-blue-300 rounded-l"
             onMouseDown={(e) => handleResizeStart(e, 'right')}
           />
         </>
