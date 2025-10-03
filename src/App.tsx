@@ -13,6 +13,7 @@ import TermsOfService from './pages/TermsOfService';
 import AuthModal from './components/AuthModal';
 import ChatWidget from './components/ChatWidget';
 import CrisisSupport from './components/CrisisSupport';
+import RippleEffect from './components/RippleEffect';
 
 function App() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -71,6 +72,7 @@ function App() {
         />
         
         <ChatWidget />
+        <RippleEffect />
       </div>
     </Router>
   );
