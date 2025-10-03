@@ -39,7 +39,7 @@ const Services: React.FC = () => {
         'Specialized student counselors',
         'Flexible scheduling'
       ],
-      color: 'from-blue-500 to-indigo-500',
+      color: 'from-sky-500 to-cyan-500',
       availability: 'By Appointment'
     },
     {
@@ -65,7 +65,7 @@ const Services: React.FC = () => {
         'Video tutorials',
         'Mindfulness exercises'
       ],
-      color: 'from-purple-500 to-violet-500',
+      color: 'from-amber-500 to-orange-500',
       availability: 'Always Available'
     },
     {
@@ -152,61 +152,66 @@ const Services: React.FC = () => {
   return (
     <div className="bg-white">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-50 to-green-50 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="bg-gradient-to-br from-slate-50 via-white to-slate-100 py-20 relative overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="absolute top-20 right-20 w-64 h-64 bg-sky-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30"></div>
+          <div className="absolute bottom-20 left-20 w-64 h-64 bg-emerald-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30"></div>
+        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              Comprehensive Mental Health{' '}
-              <span className="bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
-                Services
+            <span className="text-sm font-semibold text-sky-600 uppercase tracking-wide mb-3 block">Our Services</span>
+            <h1 className="text-5xl md:text-6xl font-extrabold text-slate-900 mb-8 leading-tight">
+              Complete Support for{' '}
+              <span className="bg-gradient-to-r from-sky-600 to-emerald-600 bg-clip-text text-transparent">
+                Every Need
               </span>
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed mb-8">
-              From crisis support to ongoing therapy, we offer a full spectrum of mental health 
-              services designed specifically for the unique needs of students in higher education.
+            <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed mb-10 font-light">
+              Professional counseling, crisis intervention, wellness programs, and more—all designed for students navigating the challenges of higher education.
             </p>
             <button
               onClick={() => setShowAssessment(true)}
-              className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-green-500 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-green-600 transition-all duration-300 transform hover:scale-105"
+              className="inline-flex items-center space-x-2 px-8 py-4 bg-gradient-to-r from-sky-500 to-emerald-500 text-white font-bold rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
             >
-              <PlayIcon className="h-5 w-5" />
-              <span>Take Free Assessment</span>
+              <PlayIcon className="h-6 w-6" />
+              <span>Start Your Assessment</span>
             </button>
           </div>
         </div>
       </section>
 
       {/* Services Grid */}
-      <section className="py-16">
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {services.map((service, index) => (
               <div
                 key={index}
-                className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 overflow-hidden"
+                className="group relative bg-white rounded-3xl border-2 border-slate-100 hover:border-slate-200 transition-all duration-300 hover:shadow-2xl overflow-hidden"
               >
-                <div className="p-6">
-                  <div className={`inline-flex p-3 rounded-xl bg-gradient-to-r ${service.color} mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                    <service.icon className="h-6 w-6 text-white" />
+                <div className="absolute inset-0 bg-gradient-to-br from-slate-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="p-8 relative">
+                  <div className={`inline-flex p-4 rounded-2xl bg-gradient-to-br ${service.color} mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                    <service.icon className="h-7 w-7 text-white" />
                   </div>
-                  
-                  <div className="flex justify-between items-start mb-3">
-                    <h3 className="text-xl font-semibold text-gray-900">
+
+                  <div className="flex justify-between items-start mb-4">
+                    <h3 className="text-xl font-bold text-slate-900">
                       {service.title}
                     </h3>
-                    <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                    <span className="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full font-semibold">
                       {service.availability}
                     </span>
                   </div>
-                  
-                  <p className="text-gray-600 mb-4 leading-relaxed">
+
+                  <p className="text-slate-600 mb-6 leading-relaxed">
                     {service.description}
                   </p>
-                  
-                  <ul className="space-y-2">
+
+                  <ul className="space-y-3">
                     {service.features.map((feature, featureIndex) => (
-                      <li key={featureIndex} className="flex items-center space-x-2 text-sm text-gray-600">
-                        <CheckIcon className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <li key={featureIndex} className="flex items-center space-x-3 text-sm text-slate-700">
+                        <CheckIcon className="h-5 w-5 text-emerald-500 flex-shrink-0" />
                         <span>{feature}</span>
                       </li>
                     ))}
@@ -219,13 +224,13 @@ const Services: React.FC = () => {
       </section>
 
       {/* Pricing Section */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-20 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Choose Your Plan</h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              We believe mental health support should be accessible to all students. 
-              Choose the plan that best fits your needs and budget.
+          <div className="text-center mb-16">
+            <span className="text-sm font-semibold text-sky-600 uppercase tracking-wide mb-2 block">Pricing</span>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-6">Flexible Plans for Every Student</h2>
+            <p className="text-xl text-slate-600 max-w-3xl mx-auto font-light">
+              Affordable mental health support that fits your budget and lifestyle.
             </p>
           </div>
           
@@ -233,7 +238,7 @@ const Services: React.FC = () => {
             {pricingPlans.map((plan, index) => (
               <div
                 key={index}
-                className={`relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border-2 ${plan.color} ${
+                className={`relative bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border-2 ${plan.color} ${
                   plan.popular ? 'scale-105' : ''
                 }`}
               >
@@ -284,21 +289,24 @@ const Services: React.FC = () => {
       </section>
 
       {/* Emergency Support CTA */}
-      <section className="py-16 bg-gradient-to-r from-red-500 to-pink-500 text-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold mb-4">Need Immediate Support?</h2>
-          <p className="text-xl text-red-100 mb-8">
-            If you're experiencing a mental health crisis, don't wait. 
-            Our crisis support team is available 24/7 to help you through difficult moments.
+      <section className="py-20 bg-gradient-to-br from-rose-600 via-pink-600 to-red-600 text-white relative overflow-hidden">
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-10 left-20 w-72 h-72 bg-white rounded-full filter blur-3xl"></div>
+          <div className="absolute bottom-10 right-20 w-72 h-72 bg-white rounded-full filter blur-3xl"></div>
+        </div>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
+          <h2 className="text-4xl md:text-5xl font-extrabold mb-6">In Crisis? We're Here Now</h2>
+          <p className="text-xl text-rose-100 mb-10 font-light leading-relaxed">
+            If you're experiencing a mental health emergency, don't wait. Our crisis support team is standing by 24/7 to help you through this moment.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-6 justify-center">
             <a
               href="tel:9152987821"
-              className="px-8 py-4 bg-white text-red-600 font-semibold rounded-lg hover:bg-red-50 transition-all duration-300 transform hover:scale-105"
+              className="px-10 py-5 bg-white text-rose-600 font-bold rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110"
             >
-              Call Suicide Prevention: 9152987821
+              Call Crisis Line: 9152987821
             </a>
-            <button className="px-8 py-4 border-2 border-white text-white font-semibold rounded-lg hover:bg-white hover:text-red-600 transition-all duration-300 transform hover:scale-105">
+            <button className="px-10 py-5 border-3 border-white text-white font-bold rounded-2xl hover:bg-white hover:text-rose-600 transition-all duration-300 transform hover:scale-110 backdrop-blur-sm bg-white/10">
               Start Crisis Chat
             </button>
           </div>

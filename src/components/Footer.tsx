@@ -4,35 +4,38 @@ import { HeartIcon, PhoneIcon, EnvelopeIcon, MapPinIcon } from '@heroicons/react
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-gradient-to-r from-blue-900 to-green-900 text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <footer className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white relative overflow-hidden">
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-sky-500 rounded-full filter blur-3xl"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-emerald-500 rounded-full filter blur-3xl"></div>
+      </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand Section */}
           <div className="col-span-1 lg:col-span-2">
-            <div className="flex items-center space-x-2 mb-4">
-              <div className="bg-white p-2 rounded-lg">
-                <HeartIcon className="h-6 w-6 text-blue-600" />
+            <div className="flex items-center space-x-3 mb-6">
+              <div className="bg-gradient-to-br from-sky-500 to-emerald-500 p-3 rounded-xl shadow-lg">
+                <HeartIcon className="h-8 w-8 text-white" />
               </div>
-              <span className="text-2xl font-bold">TRY IT</span>
+              <span className="text-3xl font-extrabold">TRY IT</span>
             </div>
-            <p className="text-blue-100 mb-6 leading-relaxed max-w-md">
-              Empowering students with comprehensive digital mental health support, 
-              resources, and tools for a healthier, happier academic journey.
+            <p className="text-slate-300 mb-8 leading-relaxed max-w-md text-lg font-light">
+              Empowering students with comprehensive digital mental health support, resources, and tools for a healthier, happier academic journey.
             </p>
-            <div className="bg-red-500 text-white p-4 rounded-lg border-l-4 border-red-400">
-              <h4 className="font-semibold text-sm mb-2">Crisis Support 24/7</h4>
-              <div className="space-y-1 text-sm">
-                <div className="flex items-center space-x-2">
-                  <PhoneIcon className="h-4 w-4" />
-                  <span>Suicide Prevention: 9152987821</span>
+            <div className="bg-gradient-to-br from-rose-600 to-red-600 text-white p-6 rounded-2xl border-2 border-rose-500/50 shadow-xl">
+              <h4 className="font-bold text-base mb-4">24/7 Crisis Support</h4>
+              <div className="space-y-3">
+                <div className="flex items-center space-x-3">
+                  <PhoneIcon className="h-5 w-5" />
+                  <span className="font-medium">Suicide Prevention: 9152987821</span>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <PhoneIcon className="h-4 w-4" />
-                  <span>Emergency: 112</span>
+                <div className="flex items-center space-x-3">
+                  <PhoneIcon className="h-5 w-5" />
+                  <span className="font-medium">Emergency: 112</span>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <PhoneIcon className="h-4 w-4" />
-                  <span>AASRA: 9820466726</span>
+                <div className="flex items-center space-x-3">
+                  <PhoneIcon className="h-5 w-5" />
+                  <span className="font-medium">AASRA: 9820466726</span>
                 </div>
               </div>
             </div>
@@ -40,8 +43,8 @@ const Footer: React.FC = () => {
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
-            <ul className="space-y-3">
+            <h3 className="text-xl font-bold mb-6">Quick Links</h3>
+            <ul className="space-y-4">
               {[
                 { name: 'About Us', href: '/about' },
                 { name: 'Services', href: '/services' },
@@ -52,7 +55,7 @@ const Footer: React.FC = () => {
                 <li key={link.name}>
                   <Link
                     to={link.href}
-                    className="text-blue-100 hover:text-white transition-colors duration-200"
+                    className="text-slate-300 hover:text-white transition-colors duration-200 font-medium"
                   >
                     {link.name}
                   </Link>
@@ -63,19 +66,19 @@ const Footer: React.FC = () => {
 
           {/* Contact Info */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Contact Us</h3>
-            <ul className="space-y-3">
+            <h3 className="text-xl font-bold mb-6">Contact Us</h3>
+            <ul className="space-y-4">
               <li className="flex items-center space-x-3">
-                <EnvelopeIcon className="h-5 w-5 text-blue-300" />
-                <span className="text-blue-100">support@tryit-mental.com</span>
+                <EnvelopeIcon className="h-6 w-6 text-sky-400" />
+                <span className="text-slate-300 font-medium">support@tryit-mental.com</span>
               </li>
               <li className="flex items-center space-x-3">
-                <PhoneIcon className="h-5 w-5 text-blue-300" />
-                <span className="text-blue-100">+91-80-46110007</span>
+                <PhoneIcon className="h-6 w-6 text-sky-400" />
+                <span className="text-slate-300 font-medium">+91-80-46110007</span>
               </li>
               <li className="flex items-start space-x-3">
-                <MapPinIcon className="h-5 w-5 text-blue-300 mt-0.5" />
-                <span className="text-blue-100">
+                <MapPinIcon className="h-6 w-6 text-sky-400 mt-1" />
+                <span className="text-slate-300 font-medium leading-relaxed">
                   Mental Health Support Center<br />
                   Bangalore, Karnataka<br />
                   India - 560001
@@ -86,21 +89,21 @@ const Footer: React.FC = () => {
         </div>
 
         {/* Bottom Section */}
-        <div className="border-t border-blue-800 mt-12 pt-8">
-          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <p className="text-blue-100 text-sm">
+        <div className="border-t border-slate-700 mt-16 pt-10">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0">
+            <p className="text-slate-400 text-sm font-medium">
               © 2024 TRY IT Mental Health Platform. All rights reserved.
             </p>
-            <div className="flex space-x-6">
+            <div className="flex space-x-8">
               <Link
                 to="/privacy"
-                className="text-blue-100 hover:text-white text-sm transition-colors duration-200"
+                className="text-slate-400 hover:text-white text-sm font-medium transition-colors duration-200"
               >
                 Privacy Policy
               </Link>
               <Link
                 to="/terms"
-                className="text-blue-100 hover:text-white text-sm transition-colors duration-200"
+                className="text-slate-400 hover:text-white text-sm font-medium transition-colors duration-200"
               >
                 Terms of Service
               </Link>
