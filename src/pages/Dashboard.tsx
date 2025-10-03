@@ -94,77 +94,77 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-slate-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Welcome Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Welcome back, {user?.name || 'User'}! 👋
+        <div className="mb-12">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-3">
+            Welcome back, {user?.name || 'User'}!
           </h1>
-          <p className="text-gray-600">
-            Here's an overview of your mental health journey and upcoming activities.
+          <p className="text-xl text-slate-600 font-light">
+            Here's your mental health journey overview and upcoming activities.
           </p>
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <HeartIcon className="h-6 w-6 text-blue-600" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          <div className="bg-white p-8 rounded-3xl shadow-xl border-2 border-slate-100 hover:shadow-2xl transition-all duration-300">
+            <div className="flex items-center space-x-4 mb-6">
+              <div className="p-3 bg-gradient-to-br from-sky-500 to-cyan-500 rounded-2xl shadow-lg">
+                <HeartIcon className="h-8 w-8 text-white" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">Current Streak</p>
-                <p className="text-2xl font-bold text-gray-900">{dashboardData.currentStreak} days</p>
+                <p className="text-sm text-slate-600 font-semibold">Current Streak</p>
+                <p className="text-3xl font-extrabold text-slate-900">{dashboardData.currentStreak} days</p>
               </div>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div className="bg-blue-500 h-2 rounded-full" style={{ width: '70%' }}></div>
+            <div className="w-full bg-slate-200 rounded-full h-3">
+              <div className="bg-gradient-to-r from-sky-500 to-cyan-500 h-3 rounded-full" style={{ width: '70%' }}></div>
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <TrophyIcon className="h-6 w-6 text-green-600" />
+          <div className="bg-white p-8 rounded-3xl shadow-xl border-2 border-slate-100 hover:shadow-2xl transition-all duration-300">
+            <div className="flex items-center space-x-4 mb-6">
+              <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl shadow-lg">
+                <TrophyIcon className="h-8 w-8 text-white" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">Sessions Completed</p>
-                <p className="text-2xl font-bold text-gray-900">{dashboardData.totalSessions}</p>
+                <p className="text-sm text-slate-600 font-semibold">Sessions Completed</p>
+                <p className="text-3xl font-extrabold text-slate-900">{dashboardData.totalSessions}</p>
               </div>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div className="bg-green-500 h-2 rounded-full" style={{ width: '80%' }}></div>
+            <div className="w-full bg-slate-200 rounded-full h-3">
+              <div className="bg-gradient-to-r from-emerald-500 to-teal-500 h-3 rounded-full" style={{ width: '80%' }}></div>
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <ChartBarIcon className="h-6 w-6 text-purple-600" />
+          <div className="bg-white p-8 rounded-3xl shadow-xl border-2 border-slate-100 hover:shadow-2xl transition-all duration-300">
+            <div className="flex items-center space-x-4 mb-6">
+              <div className="p-3 bg-gradient-to-br from-violet-500 to-purple-500 rounded-2xl shadow-lg">
+                <ChartBarIcon className="h-8 w-8 text-white" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">Weekly Goal</p>
-                <p className="text-2xl font-bold text-gray-900">{dashboardData.completedSessions}/{dashboardData.weeklyGoal}</p>
+                <p className="text-sm text-slate-600 font-semibold">Weekly Goal</p>
+                <p className="text-3xl font-extrabold text-slate-900">{dashboardData.completedSessions}/{dashboardData.weeklyGoal}</p>
               </div>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div className="bg-purple-500 h-2 rounded-full" style={{ width: `${(dashboardData.completedSessions / dashboardData.weeklyGoal) * 100}%` }}></div>
+            <div className="w-full bg-slate-200 rounded-full h-3">
+              <div className="bg-gradient-to-r from-violet-500 to-purple-500 h-3 rounded-full" style={{ width: `${(dashboardData.completedSessions / dashboardData.weeklyGoal) * 100}%` }}></div>
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="p-2 bg-orange-100 rounded-lg">
-                <HeartIcon className="h-6 w-6 text-orange-600" />
+          <div className="bg-white p-8 rounded-3xl shadow-xl border-2 border-slate-100 hover:shadow-2xl transition-all duration-300">
+            <div className="flex items-center space-x-4 mb-6">
+              <div className="p-3 bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl shadow-lg">
+                <HeartIcon className="h-8 w-8 text-white" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">Mood Average</p>
-                <p className="text-2xl font-bold text-gray-900">{dashboardData.moodAverage}/10</p>
+                <p className="text-sm text-slate-600 font-semibold">Mood Average</p>
+                <p className="text-3xl font-extrabold text-slate-900">{dashboardData.moodAverage}/10</p>
               </div>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div className="bg-orange-500 h-2 rounded-full" style={{ width: `${(dashboardData.moodAverage / 10) * 100}%` }}></div>
+            <div className="w-full bg-slate-200 rounded-full h-3">
+              <div className="bg-gradient-to-r from-amber-500 to-orange-500 h-3 rounded-full" style={{ width: `${(dashboardData.moodAverage / 10) * 100}%` }}></div>
             </div>
           </div>
         </div>
@@ -173,10 +173,10 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
             {/* Mood Tracking Chart */}
-            <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-gray-900">Weekly Mood Tracking</h2>
-                <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+            <div className="bg-white p-8 rounded-3xl shadow-xl border-2 border-slate-100">
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="text-2xl font-bold text-slate-900">Weekly Mood Tracking</h2>
+                <button className="text-sky-600 hover:text-sky-700 text-sm font-semibold">
                   View Details →
                 </button>
               </div>
@@ -185,11 +185,11 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
                 <div className="flex items-end justify-between h-48 space-x-2">
                   {dashboardData.moodData.map((day, index) => (
                     <div key={index} className="flex-1 flex flex-col items-center">
-                      <div 
-                        className="bg-gradient-to-t from-blue-500 to-blue-400 rounded-t w-full transition-all duration-300 hover:from-blue-600 hover:to-blue-500"
+                      <div
+                        className="bg-gradient-to-t from-sky-500 to-cyan-400 rounded-t w-full transition-all duration-300 hover:from-sky-600 hover:to-cyan-500"
                         style={{ height: `${(day.mood / 10) * 100}%` }}
                       ></div>
-                      <span className="text-xs text-gray-600 mt-2">{day.day}</span>
+                      <span className="text-xs text-slate-700 mt-2 font-semibold">{day.day}</span>
                     </div>
                   ))}
                 </div>
@@ -201,11 +201,11 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
             </div>
 
             {/* Goals Progress */}
-            <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-gray-900">Your Goals</h2>
-                <button className="flex items-center space-x-1 text-blue-600 hover:text-blue-700 text-sm font-medium">
-                  <PlusIcon className="h-4 w-4" />
+            <div className="bg-white p-8 rounded-3xl shadow-xl border-2 border-slate-100">
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="text-2xl font-bold text-slate-900">Your Goals</h2>
+                <button className="flex items-center space-x-1 text-sky-600 hover:text-sky-700 text-sm font-semibold">
+                  <PlusIcon className="h-5 w-5" />
                   <span>Add Goal</span>
                 </button>
               </div>
@@ -229,8 +229,8 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
             </div>
 
             {/* Recent Activities */}
-            <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">Recent Activities</h2>
+            <div className="bg-white p-8 rounded-3xl shadow-xl border-2 border-slate-100">
+              <h2 className="text-2xl font-bold text-slate-900 mb-8">Recent Activities</h2>
               <div className="space-y-4">
                 {dashboardData.recentActivities.map((activity) => (
                   <div key={activity.id} className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
@@ -254,35 +254,35 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Quick Actions */}
-            <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+            <div className="bg-white p-8 rounded-3xl shadow-xl border-2 border-slate-100">
+              <h3 className="text-xl font-bold text-slate-900 mb-6">Quick Actions</h3>
               <div className="space-y-3">
-                <button className="w-full p-3 text-left bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors duration-200">
+                <button className="w-full p-4 text-left bg-sky-50 hover:bg-sky-100 rounded-xl transition-colors duration-200 border-2 border-sky-100">
                   <div className="flex items-center space-x-3">
-                    <HeartIcon className="h-5 w-5 text-blue-600" />
-                    <span className="font-medium text-blue-700">Log Today's Mood</span>
+                    <HeartIcon className="h-6 w-6 text-sky-600" />
+                    <span className="font-bold text-sky-700">Log Today's Mood</span>
                   </div>
                 </button>
-                <button className="w-full p-3 text-left bg-green-50 hover:bg-green-100 rounded-lg transition-colors duration-200">
+                <button className="w-full p-4 text-left bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-colors duration-200 border-2 border-emerald-100">
                   <div className="flex items-center space-x-3">
-                    <CalendarDaysIcon className="h-5 w-5 text-green-600" />
-                    <span className="font-medium text-green-700">Book Appointment</span>
+                    <CalendarDaysIcon className="h-6 w-6 text-emerald-600" />
+                    <span className="font-bold text-emerald-700">Book Appointment</span>
                   </div>
                 </button>
-                <button className="w-full p-3 text-left bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors duration-200">
+                <button className="w-full p-4 text-left bg-violet-50 hover:bg-violet-100 rounded-xl transition-colors duration-200 border-2 border-violet-100">
                   <div className="flex items-center space-x-3">
-                    <BookOpenIcon className="h-5 w-5 text-purple-600" />
-                    <span className="font-medium text-purple-700">Start Exercise</span>
+                    <BookOpenIcon className="h-6 w-6 text-violet-600" />
+                    <span className="font-bold text-violet-700">Start Exercise</span>
                   </div>
                 </button>
               </div>
             </div>
 
             {/* Upcoming Appointments */}
-            <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Upcoming Appointments</h3>
-                <BellIcon className="h-5 w-5 text-gray-400" />
+            <div className="bg-white p-8 rounded-3xl shadow-xl border-2 border-slate-100">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold text-slate-900">Upcoming Appointments</h3>
+                <BellIcon className="h-6 w-6 text-slate-400" />
               </div>
               <div className="space-y-3">
                 {dashboardData.upcomingAppointments.map((appointment) => (
@@ -310,21 +310,26 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
             </div>
 
             {/* Emergency Support */}
-            <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white p-6 rounded-2xl shadow-lg">
-              <h3 className="text-lg font-semibold mb-2">Need Help Now?</h3>
-              <p className="text-red-100 text-sm mb-4">
-                If you're in crisis, don't wait. Get immediate support.
-              </p>
-              <div className="space-y-2">
-                <button className="w-full py-2 px-4 bg-white text-red-600 font-semibold rounded-lg hover:bg-red-50 transition-colors duration-200 text-sm">
-                  Crisis Chat
-                </button>
-                <a
-                  href="tel:9152987821"
-                  className="block w-full py-2 px-4 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors duration-200 text-sm text-center"
-                >
-                  Call 9152987821
-                </a>
+            <div className="bg-gradient-to-br from-rose-600 via-pink-600 to-red-600 text-white p-8 rounded-3xl shadow-2xl relative overflow-hidden">
+              <div className="absolute inset-0 opacity-20">
+                <div className="absolute top-10 left-10 w-32 h-32 bg-white rounded-full filter blur-2xl"></div>
+              </div>
+              <div className="relative">
+                <h3 className="text-xl font-extrabold mb-3">Need Help Now?</h3>
+                <p className="text-rose-100 text-sm mb-6 font-light">
+                  If you're in crisis, don't wait. Get immediate support.
+                </p>
+                <div className="space-y-3">
+                  <button className="w-full py-3 px-4 bg-white text-rose-600 font-bold rounded-xl hover:bg-rose-50 transition-colors duration-200 shadow-lg">
+                    Crisis Chat
+                  </button>
+                  <a
+                    href="tel:9152987821"
+                    className="block w-full py-3 px-4 bg-rose-700 text-white font-bold rounded-xl hover:bg-rose-800 transition-colors duration-200 text-center border-2 border-white/30"
+                  >
+                    Call 9152987821
+                  </a>
+                </div>
               </div>
             </div>
           </div>

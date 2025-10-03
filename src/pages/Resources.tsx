@@ -200,20 +200,24 @@ const Resources: React.FC = () => {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-slate-50 min-h-screen">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-50 to-green-50 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="bg-gradient-to-br from-slate-50 via-white to-slate-100 py-20 relative overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="absolute top-20 right-20 w-64 h-64 bg-sky-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30"></div>
+          <div className="absolute bottom-20 left-20 w-64 h-64 bg-emerald-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30"></div>
+        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              Mental Health{' '}
-              <span className="bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
-                Resources
+            <span className="text-sm font-semibold text-sky-600 uppercase tracking-wide mb-3 block">Resource Library</span>
+            <h1 className="text-5xl md:text-6xl font-extrabold text-slate-900 mb-8 leading-tight">
+              Your Mental Health{' '}
+              <span className="bg-gradient-to-r from-sky-600 to-emerald-600 bg-clip-text text-transparent">
+                Toolkit
               </span>
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed mb-8">
-              Access evidence-based articles, guided exercises, educational videos, and comprehensive 
-              guides to support your mental health journey throughout your academic career.
+            <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed mb-10 font-light">
+              Evidence-based articles, guided exercises, educational videos, and comprehensive guides to support your wellness journey.
             </p>
           </div>
         </div>
@@ -231,7 +235,7 @@ const Resources: React.FC = () => {
                 placeholder="Search resources..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                className="w-full pl-10 pr-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all duration-200 bg-white shadow-sm"
               />
             </div>
             
@@ -240,7 +244,7 @@ const Resources: React.FC = () => {
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white"
+                className="px-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all duration-200 bg-white shadow-sm font-medium"
               >
                 {categories.map(category => (
                   <option key={category.value} value={category.value}>
@@ -252,7 +256,7 @@ const Resources: React.FC = () => {
               <select
                 value={selectedType}
                 onChange={(e) => setSelectedType(e.target.value)}
-                className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white"
+                className="px-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all duration-200 bg-white shadow-sm font-medium"
               >
                 {types.map(type => (
                   <option key={type.value} value={type.value}>
@@ -265,12 +269,12 @@ const Resources: React.FC = () => {
           
           {/* Results Count */}
           <div className="flex items-center justify-between">
-            <p className="text-gray-600">
+            <p className="text-slate-700 font-semibold">
               Showing {filteredResources.length} of {resources.length} resources
             </p>
-            <div className="flex items-center space-x-2 text-sm text-gray-500">
-              <FunnelIcon className="h-4 w-4" />
-              <span>Filtered by: {selectedCategory !== 'all' ? categories.find(c => c.value === selectedCategory)?.label + ', ' : ''}{selectedType !== 'all' ? types.find(t => t.value === selectedType)?.label : 'All'}</span>
+            <div className="flex items-center space-x-2 text-sm text-slate-600">
+              <FunnelIcon className="h-5 w-5" />
+              <span className="font-medium">Filtered by: {selectedCategory !== 'all' ? categories.find(c => c.value === selectedCategory)?.label + ', ' : ''}{selectedType !== 'all' ? types.find(t => t.value === selectedType)?.label : 'All'}</span>
             </div>
           </div>
         </div>
@@ -283,7 +287,7 @@ const Resources: React.FC = () => {
             return (
               <div
                 key={resource.id}
-                className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden border border-gray-100"
+                className="group bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden border-2 border-slate-100"
               >
                 <div className="relative overflow-hidden">
                   <img
@@ -325,8 +329,8 @@ const Resources: React.FC = () => {
                     </div>
                   </div>
                   
-                  <button className="w-full py-2 px-4 bg-gradient-to-r from-blue-500 to-green-500 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-green-600 transition-all duration-200 transform hover:scale-105">
-                    {resource.type === 'video' ? 'Watch Now' : 
+                  <button className="w-full py-3 px-4 bg-gradient-to-r from-sky-500 to-emerald-500 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                    {resource.type === 'video' ? 'Watch Now' :
                      resource.type === 'exercise' ? 'Start Exercise' : 'Read More'}
                   </button>
                 </div>
@@ -347,26 +351,30 @@ const Resources: React.FC = () => {
         )}
 
         {/* Emergency Resources */}
-        <div className="mt-16 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-2xl p-8">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold mb-4">Need Immediate Help?</h2>
-            <p className="text-red-100 mb-6">
+        <div className="mt-20 bg-gradient-to-br from-rose-600 via-pink-600 to-red-600 text-white rounded-3xl p-12 shadow-2xl relative overflow-hidden">
+          <div className="absolute inset-0 opacity-20">
+            <div className="absolute top-10 left-20 w-64 h-64 bg-white rounded-full filter blur-3xl"></div>
+            <div className="absolute bottom-10 right-20 w-64 h-64 bg-white rounded-full filter blur-3xl"></div>
+          </div>
+          <div className="text-center relative">
+            <h2 className="text-3xl md:text-4xl font-extrabold mb-6">Need Immediate Help?</h2>
+            <p className="text-rose-100 mb-10 text-lg font-light">
               If you're in crisis or need immediate support, these resources are available 24/7:
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <a
                 href="tel:9152987821"
-                className="bg-white text-red-600 px-6 py-3 rounded-lg font-semibold hover:bg-red-50 transition-colors duration-200"
+                className="bg-white text-rose-600 px-8 py-4 rounded-2xl font-bold hover:bg-rose-50 transition-all duration-200 shadow-xl hover:scale-105 transform"
               >
                 Suicide Prevention: 9152987821
               </a>
               <a
                 href="tel:112"
-                className="bg-white text-red-600 px-6 py-3 rounded-lg font-semibold hover:bg-red-50 transition-colors duration-200"
+                className="bg-white text-rose-600 px-8 py-4 rounded-2xl font-bold hover:bg-rose-50 transition-all duration-200 shadow-xl hover:scale-105 transform"
               >
                 Emergency: 112
               </a>
-              <button className="bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors duration-200">
+              <button className="bg-rose-700 text-white px-8 py-4 rounded-2xl font-bold hover:bg-rose-800 transition-all duration-200 shadow-xl hover:scale-105 transform border-2 border-white/30">
                 Crisis Chat
               </button>
             </div>

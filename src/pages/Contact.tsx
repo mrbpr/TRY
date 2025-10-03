@@ -109,18 +109,22 @@ const Contact: React.FC = () => {
   return (
     <div className="bg-white">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-50 to-green-50 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="bg-gradient-to-br from-slate-50 via-white to-slate-100 py-20 relative overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="absolute top-20 right-20 w-64 h-64 bg-sky-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30"></div>
+          <div className="absolute bottom-20 left-20 w-64 h-64 bg-emerald-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30"></div>
+        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              Get in{' '}
-              <span className="bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
-                Touch
+            <span className="text-sm font-semibold text-sky-600 uppercase tracking-wide mb-3 block">Contact Us</span>
+            <h1 className="text-5xl md:text-6xl font-extrabold text-slate-900 mb-8 leading-tight">
+              We're Here to{' '}
+              <span className="bg-gradient-to-r from-sky-600 to-emerald-600 bg-clip-text text-transparent">
+                Help
               </span>
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              We're here to support you every step of the way. Reach out through any of our 
-              channels and we'll connect you with the right resources for your needs.
+            <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed font-light">
+              Reach out through any channel—we'll connect you with the right support for your needs.
             </p>
           </div>
         </div>
@@ -128,38 +132,48 @@ const Contact: React.FC = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         {/* Emergency Alert */}
-        <div className="bg-red-500 text-white rounded-2xl p-6 mb-12 text-center">
-          <h2 className="text-xl font-bold mb-2">In Crisis? Get Help Now</h2>
-          <p className="mb-4">If you're having thoughts of self-harm or suicide, please reach out immediately:</p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <a
-              href="tel:9152987821"
-              className="px-6 py-3 bg-white text-red-600 font-semibold rounded-lg hover:bg-red-50 transition-colors duration-200"
-            >
-              Call 9152987821 - Suicide Prevention
-            </a>
-            <a
-              href="tel:112"
-              className="px-6 py-3 bg-white text-red-600 font-semibold rounded-lg hover:bg-red-50 transition-colors duration-200"
-            >
-              Call 112 - Emergency
-            </a>
-            <button className="px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors duration-200">
-              Start Crisis Chat
-            </button>
+        <div className="bg-gradient-to-br from-rose-600 via-pink-600 to-red-600 text-white rounded-3xl p-10 mb-16 text-center shadow-2xl relative overflow-hidden">
+          <div className="absolute inset-0 opacity-20">
+            <div className="absolute top-10 left-20 w-64 h-64 bg-white rounded-full filter blur-3xl"></div>
+            <div className="absolute bottom-10 right-20 w-64 h-64 bg-white rounded-full filter blur-3xl"></div>
+          </div>
+          <div className="relative">
+            <h2 className="text-3xl font-extrabold mb-4">In Crisis? Get Help Now</h2>
+            <p className="mb-8 text-lg font-light">If you're having thoughts of self-harm or suicide, please reach out immediately:</p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <a
+                href="tel:9152987821"
+                className="px-8 py-4 bg-white text-rose-600 font-bold rounded-2xl hover:bg-rose-50 transition-all duration-200 shadow-xl hover:scale-105 transform"
+              >
+                Call 9152987821 - Suicide Prevention
+              </a>
+              <a
+                href="tel:112"
+                className="px-8 py-4 bg-white text-rose-600 font-bold rounded-2xl hover:bg-rose-50 transition-all duration-200 shadow-xl hover:scale-105 transform"
+              >
+                Call 112 - Emergency
+              </a>
+              <button className="px-8 py-4 bg-rose-700 text-white font-bold rounded-2xl hover:bg-rose-800 transition-all duration-200 shadow-xl hover:scale-105 transform border-2 border-white/30">
+                Start Crisis Chat
+              </button>
+            </div>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Contact Form */}
           <div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-6">Send us a Message</h2>
-            
+            <h2 className="text-4xl font-extrabold text-slate-900 mb-8">Send us a Message</h2>
+
             {isSubmitted && (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-                <div className="flex items-center space-x-2">
-                  <div className="w-4 h-4 bg-green-500 rounded-full"></div>
-                  <p className="text-green-700 font-medium">
+              <div className="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-6 mb-8 shadow-lg">
+                <div className="flex items-center space-x-3">
+                  <div className="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <p className="text-emerald-700 font-semibold text-lg">
                     Thank you! We've received your message and will respond within 24 hours.
                   </p>
                 </div>
@@ -177,7 +191,7 @@ const Contact: React.FC = () => {
                     type="text"
                     id="name"
                     {...register('name', { required: 'Name is required' })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                    className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all duration-200 bg-white shadow-sm"
                   />
                   {errors.name && (
                     <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
@@ -304,7 +318,7 @@ const Contact: React.FC = () => {
 
               <button
                 type="submit"
-                className="w-full py-3 px-6 bg-gradient-to-r from-blue-500 to-green-500 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-green-600 transition-all duration-200 transform hover:scale-105"
+                className="w-full py-4 px-6 bg-gradient-to-r from-sky-500 to-emerald-500 text-white font-bold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-200 transform hover:scale-105"
               >
                 Send Message
               </button>
@@ -313,7 +327,7 @@ const Contact: React.FC = () => {
 
           {/* Contact Methods */}
           <div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-6">Other Ways to Reach Us</h2>
+            <h2 className="text-4xl font-extrabold text-slate-900 mb-8">Other Ways to Reach Us</h2>
             
             <div className="space-y-4 mb-8">
               {contactMethods.map((method, index) => (
